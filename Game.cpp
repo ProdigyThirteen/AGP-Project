@@ -2,8 +2,14 @@
 #include <Windows.h>
 #include <d3d11.h>
 #include "Globals.h"
+#include "Renderer.h"
 #include "MeshDatabase.h"
 #include "TextureDatabase.h"
+#include "ShaderManager.h"
+#include "MaterialDatabase.h"
+
+// TODO: Remove
+#include "GameObject.h"
 
 Game* Game::instance = nullptr;
 
@@ -134,8 +140,25 @@ bool Game::Init(HINSTANCE hInstance, int nCmdShow)
 	}
 	OutputDebugString(L"Renderer initialized\n");
 
+	// Load assets
 	MeshDatabase::GetInstance().LoadMeshes("meshes/", m_Renderer);
 	TextureDatabase::GetInstance().LoadTextures("textures/", m_Renderer->GetDevice(), m_Renderer->GetDeviceContext());
+	TextureDatabase::GetInstance().CreateSkyboxTexture("skybox01", m_Renderer->GetDevice(), m_Renderer->GetDeviceContext());
+
+	// Create shaders
+	ShaderManager::GetInstance().CreateShaders(m_Renderer->GetDevice(), m_Renderer->GetDeviceContext());
+
+	// Create materials from textures and shaders
+	MaterialDatabase::GetInstance().CreateNewMaterial("default", "default", "Box");
+	MaterialDatabase::GetInstance().CreateSkyboxMaterial("skybox", "skybox", "skybox01");
+
+
+	m_Scene = new Scene();
+	m_Scene->Init(m_Renderer->GetDevice(), m_Renderer->GetDeviceContext());
+
+	// Add cube to scene
+	GameObject* cube = new GameObject("cube", "default");
+	m_Scene->AddGameObject(cube);
 
 
 
@@ -155,14 +178,14 @@ void Game::Run()
 	}
 	else
 	{
-		m_Renderer->DrawFrame();
+		m_Renderer->DrawFrame(m_Scene);
 	}
 
 }
 
 void Game::Cleanup()
 {
-	OutputDebugString(L"Starting game cleanup");
+	OutputDebugString(L"Starting game cleanup\n");
 	delete m_Renderer;
 }
 

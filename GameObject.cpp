@@ -1,14 +1,17 @@
 #include "GameObject.h"
 #include "MeshDatabase.h"
-#include "TextureDatabase.h"
+#include "MaterialDatabase.h"
 
-GameObject::GameObject(const char* MeshName, const char* TextureName)
+GameObject::GameObject(const char* MeshName, const char* MaterialName)
 {
 	m_ObjectMesh = MeshDatabase::GetInstance().GetMesh(MeshName);
-	m_Texture	 = TextureDatabase::GetInstance().GetTexture(TextureName);
+	m_Material   = MaterialDatabase::GetInstance().GetMaterial(MaterialName);
 }
 
-void GameObject::Draw()
+GameObject::~GameObject()
 {
+}
 
+void GameObject::Update(float deltaTime)
+{
 }

@@ -5,42 +5,33 @@
 #include <DirectXMath.h>
 #include <DirectXColors.h>
 
+#include "CBuffer.h"
+
+#include "Scene.h"
+#include "Skybox.h"
+#include "GameObject.h"
+#include "Camera.h"
+
 Renderer::Renderer()
 {
+
 }
 
 Renderer::~Renderer()
 {
-	if (m_DeviceContext)
-	{
-		m_DeviceContext->ClearState();
-		m_DeviceContext->Release();
-	}
+	if (m_DeviceContext) m_DeviceContext->Release();
 
-	if (m_Device)
-	{
-		m_Device->Release();
-	}
+	if (m_Device) m_Device->Release();
 
-	if (m_SwapChain)
-	{
-		m_SwapChain->Release();
-	}
+	if (m_SwapChain) m_SwapChain->Release();
 
-	if (m_BackBuffer)
-	{
-		m_BackBuffer->Release();
-	}
+	if (m_BackBuffer) m_BackBuffer->Release();
 
-	if (m_ZBuffer)
-	{
-		m_ZBuffer->Release();
-	}
+	if (m_ZBuffer) m_ZBuffer->Release();
 }
 
 HRESULT Renderer::Init(HWND hWnd)
 {
-
 	DXGI_SWAP_CHAIN_DESC scd = {};
 	// Set up the swap chain description
 	scd.BufferCount = 1;
@@ -139,13 +130,69 @@ HRESULT Renderer::Init(HWND hWnd)
 	vp.MaxDepth = 1;
 	m_DeviceContext->RSSetViewports(1, &vp);
 
+	// Set topology
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Set constant buffer
+	D3D11_BUFFER_DESC cb = { 0 };
+	cb.Usage = D3D11_USAGE_DEFAULT;
+	cb.ByteWidth = sizeof(CBUFFER0);
+	cb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	hr = m_Device->CreateBuffer(&cb, NULL, &m_CBuffer);
+	if(FAILED(hr))
+	{
+		OutputDebugString(L"Failed to create constant buffer");
+		return E_FAIL;
+	}
+	OutputDebugString(L"Successfully created constant buffer\n");
+
+	// Set sampler state
+	D3D11_SAMPLER_DESC sampDesc;
+	ZeroMemory(&sampDesc, sizeof(sampDesc));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	m_Device->CreateSamplerState(&sampDesc, &m_SamplerState);
+
 	return S_OK;
 }
 
-void Renderer::DrawFrame()
+void Renderer::DrawFrame(Scene* scene)
 {
 	m_DeviceContext->ClearRenderTargetView(m_BackBuffer, DirectX::Colors::DarkSlateBlue);
 	m_DeviceContext->ClearDepthStencilView(m_ZBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	// Draw skybox
+	scene->GetSkybox()->Draw(m_DeviceContext, scene->GetCamera());
+
+	// Draw game objects
+	DirectX::XMMATRIX w, v, p;
+	v = scene->GetCamera()->GetViewMatrix();
+	p = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(60), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+
+	CBUFFER0 cBuffer;
+
+	m_DeviceContext->PSSetSamplers(0, 1, &m_SamplerState);
+	for (auto& gameObject : scene->GetGameObjects())
+	{
+		w = gameObject->GetTransform().GetWorldMaxtrix();
+		m_DeviceContext->PSSetShaderResources(0, 1, &gameObject->GetMaterial()->Texture);
+
+		cBuffer.WVP = w * v * p ;
+		cBuffer.WV  = w * v;
+
+		cBuffer.ambientLightColour = { 0.25f, 0.25f, 0.25f, 1.0f };
+		cBuffer.directionalLightCol = { 0.0f, 0.0f, 0.0f, 0.0f };
+		cBuffer.directionalLightDir = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+		m_DeviceContext->UpdateSubresource(m_CBuffer, 0, NULL, &cBuffer, 0, 0);
+		m_DeviceContext->VSSetConstantBuffers(0, 1, &m_CBuffer);
+
+		gameObject->GetMesh()->Draw();
+	}
+
 
 	m_SwapChain->Present(0, 0);
 }

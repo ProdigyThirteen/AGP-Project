@@ -1,7 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include "Renderer.h"
-#include "MeshDatabase.h"
+#include "Scene.h"
 
 class Game
 {
@@ -14,8 +14,8 @@ private:
 	static Game* instance;
 
 	// Window handle
-	HWND hWnd;
-	HINSTANCE hInstance;
+	HWND hWnd = { 0 };
+	HINSTANCE hInstance = { 0 };
 	const wchar_t* WindowName = L"AGP Project Game";
 
 	// Window procedure
@@ -24,10 +24,11 @@ private:
 	HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);
 
 	// State tracking
-	bool bGameOver;
+	bool bGameOver = false;
 
 	// Game components
-	Renderer* m_Renderer;
+	Renderer* m_Renderer = nullptr;
+	Scene* m_Scene = nullptr;
 
 public:
 	~Game() = default;

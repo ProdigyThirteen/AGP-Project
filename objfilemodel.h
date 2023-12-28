@@ -9,8 +9,6 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
-using namespace std;
-using namespace DirectX;
 
 class ObjFileModel
 {
@@ -50,24 +48,24 @@ public:
 	// Define model vertex structure
 	struct MODEL_POS_COL_TEX_NORM_VERTEX
 	{
-		XMFLOAT3 Pos;
-		XMFLOAT4 Col;
-		XMFLOAT2 TexCoord;
-		XMFLOAT3 Normal;
+		DirectX::XMFLOAT3 Pos;
+		DirectX::XMFLOAT4 Col;
+		DirectX::XMFLOAT2 TexCoord;
+		DirectX::XMFLOAT3 Normal;
 	};
 
 
-	string filename;
+	std::string filename;
 
 	ObjFileModel(char* filename, ID3D11Device* device, ID3D11DeviceContext* context);
 	~ObjFileModel();
 
 	void Draw(void);
 
-	vector <xyz> position_list;		// list of parsed positions
-	vector <xyz> normal_list;		// list of parsed normals
-	vector <xy> texcoord_list;		// list of parsed texture coordinates
-	vector <int> pindices, tindices, nindices; // lists of indicies into above lists derived from faces
+	std::vector <xyz> position_list;		// list of parsed positions
+	std::vector <xyz> normal_list;		// list of parsed normals
+	std::vector <xy> texcoord_list;		// list of parsed texture coordinates
+	std::vector <int> pindices, tindices, nindices; // lists of indicies into above lists derived from faces
 
 	MODEL_POS_COL_TEX_NORM_VERTEX* vertices;
 	unsigned int numverts;

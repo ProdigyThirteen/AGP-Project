@@ -7,7 +7,7 @@ class Renderer;
 class MeshDatabase
 {
 private:
-	std::map<const char*, ObjFileModel*> m_meshes;
+	std::map<std::string, ObjFileModel*> m_meshes;
 
 	MeshDatabase() = default;
 	MeshDatabase(const MeshDatabase& other) = delete;
@@ -22,7 +22,7 @@ public:
 	~MeshDatabase();
 
 	void LoadMeshes(std::string filename, Renderer* Renderer);
-	ObjFileModel* GetMesh(const char* name);
+	ObjFileModel* GetMesh(std::string name);
 
 };
 

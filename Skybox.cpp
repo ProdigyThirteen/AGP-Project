@@ -113,9 +113,9 @@ void Skybox::Draw(ID3D11DeviceContext* DeviceContext, Camera* cam)
 	DeviceContext->RSSetState(pRasterSkybox);
 
 	// Set skybox shaders
+	DeviceContext->IASetInputLayout(pSkyboxMaterial->Shader->InputLayout);
 	DeviceContext->VSSetShader(pSkyboxMaterial->Shader->VertexShader, 0, 0);
 	DeviceContext->PSSetShader(pSkyboxMaterial->Shader->PixelShader, 0, 0);
-	DeviceContext->IASetInputLayout(pSkyboxMaterial->Shader->InputLayout);
 
 	// Constant buffer data
 	SkyboxCBuffer cBuffer = { DirectX::XMMATRIX() };

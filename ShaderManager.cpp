@@ -130,14 +130,18 @@ HRESULT ShaderManager::LoadPixelShader(ID3D11Device* Device, LPCWSTR fileName, L
 	return S_OK;
 }
 
-HRESULT ShaderManager::LoadCompiledVertexShader(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext, LPCWSTR fileName, ShaderData& shader)
+// TODO: Fix this shit
+HRESULT ShaderManager::LoadCompiledVertexShader(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext, LPCWSTR fileName, ShaderData* shader)
 {
 	HRESULT result;
 	auto VertexBytecode = DX::ReadData(fileName);
 
-	Device->CreateVertexShader(VertexBytecode.data(), VertexBytecode.size(), NULL, &shader.VertexShader);
-
-	DeviceContext->VSSetShader(shader.VertexShader, 0, 0);
+	result = Device->CreateVertexShader(VertexBytecode.data(), VertexBytecode.size(), NULL, &shader->VertexShader);
+	if (FAILED(result))
+	{
+		OutputDebugString(L"Failed to create vertex shader\n");
+		return result;
+	}
 
 	ID3D11ShaderReflection* vShaderReflection = nullptr;
 	D3DReflect(VertexBytecode.data(), VertexBytecode.size(), IID_ID3D11ShaderReflection, (void**)&vShaderReflection);
@@ -190,7 +194,7 @@ HRESULT ShaderManager::LoadCompiledVertexShader(ID3D11Device* Device, ID3D11Devi
 	}
 
 
-	result = Device->CreateInputLayout(ied, shaderDesc.InputParameters, VertexBytecode.data(), VertexBytecode.size(), &shader.InputLayout);
+	result = Device->CreateInputLayout(ied, shaderDesc.InputParameters, VertexBytecode.data(), VertexBytecode.size(), &shader->InputLayout);
 	if (FAILED(result))
 	{
 		OutputDebugString(L"Failed to create input layout\n");
@@ -198,21 +202,19 @@ HRESULT ShaderManager::LoadCompiledVertexShader(ID3D11Device* Device, ID3D11Devi
 	}
 	OutputDebugString(L"Successfully created input layout\n");
 
-	DeviceContext->IASetInputLayout(shader.InputLayout);
-
 	delete[] paramDesc;
 	delete[] ied;
 
 	return S_OK;
 }
 
-HRESULT ShaderManager::LoadCompiledPixelShader(ID3D11Device* Device, LPCWSTR fileName, ShaderData& shader)
+HRESULT ShaderManager::LoadCompiledPixelShader(ID3D11Device* Device, LPCWSTR fileName, ShaderData* shader)
 {
 	HRESULT result;
 
 	auto PixelBytecode = DX::ReadData(fileName);
 
-	result = Device->CreatePixelShader(PixelBytecode.data(), PixelBytecode.size(), NULL, &shader.PixelShader);
+	result = Device->CreatePixelShader(PixelBytecode.data(), PixelBytecode.size(), NULL, &shader->PixelShader);
 	if (FAILED(result))
 	{
 		OutputDebugString(L"Failed to create pixel shader\n");
@@ -234,14 +236,14 @@ HRESULT ShaderManager::CreateShaders(ID3D11Device* Device, ID3D11DeviceContext* 
 	}
 
 	ShaderData* shader = new ShaderData();
-	result = LoadVertexShader(Device, DeviceContext, L"VertexShader.hlsl", "main", *shader);
+	result = LoadCompiledVertexShader(Device, DeviceContext, L"CompiledShaders/VertexShader.cso", shader);
 	if (FAILED(result))
 	{
 		OutputDebugString(L"Failed to load vertex shader\n");
 		return result;
 	}
 
-	result = LoadPixelShader(Device, L"PixelShader.hlsl", "main", *shader);
+	result = LoadCompiledPixelShader(Device, L"CompiledShaders/PixelShader.cso", shader);
 	if (FAILED(result))
 	{
 		OutputDebugString(L"Failed to load pixel shader\n");
@@ -257,14 +259,14 @@ HRESULT ShaderManager::CreateShaders(ID3D11Device* Device, ID3D11DeviceContext* 
 	}
 
 	shader = new ShaderData();
-	result = LoadPixelShader(Device, L"SkyboxPixelShader.hlsl", "main", *shader);
+	result = LoadCompiledPixelShader(Device, L"CompiledShaders/SkyboxPixelShader.cso", shader);
 	if (FAILED(result))
 	{
 		OutputDebugString(L"Failed to load pixel shader\n");
 		return result;
 	}
 
-	result = LoadVertexShader(Device, DeviceContext, L"SkyboxVertexShader.hlsl", "main", *shader);
+	result = LoadCompiledVertexShader(Device, DeviceContext, L"CompiledShaders/SkyboxVertexShader.cso", shader);
 	if (FAILED(result))
 	{
 		OutputDebugString(L"Failed to load vertex shader\n");

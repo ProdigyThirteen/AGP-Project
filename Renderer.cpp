@@ -20,14 +20,13 @@ Renderer::Renderer()
 Renderer::~Renderer()
 {
 	if (m_DeviceContext) m_DeviceContext->Release();
-
+	if (m_SamplerState) m_SamplerState->Release();
+	if (m_BackBuffer) m_BackBuffer->Release();
+	if (m_SwapChain) m_SwapChain->Release();
+	if (m_ZBuffer) m_ZBuffer->Release();
+	if (m_CBuffer) m_CBuffer->Release();
 	if (m_Device) m_Device->Release();
 
-	if (m_SwapChain) m_SwapChain->Release();
-
-	if (m_BackBuffer) m_BackBuffer->Release();
-
-	if (m_ZBuffer) m_ZBuffer->Release();
 }
 
 HRESULT Renderer::Init(HWND hWnd)
@@ -167,31 +166,47 @@ void Renderer::DrawFrame(Scene* scene)
 	// Draw skybox
 	scene->GetSkybox()->Draw(m_DeviceContext, scene->GetCamera());
 
-	// Draw game objects
+	// Setting up data for drawing objects
 	DirectX::XMMATRIX w, v, p;
 	v = scene->GetCamera()->GetViewMatrix();
 	p = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(60), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
 	CBUFFER0 cBuffer;
+	Material* material;
 
+	// Set sampler state
 	m_DeviceContext->PSSetSamplers(0, 1, &m_SamplerState);
-	for (auto& gameObject : scene->GetGameObjects())
-	{
-		w = gameObject->GetTransform().GetWorldMaxtrix();
-		m_DeviceContext->PSSetShaderResources(0, 1, &gameObject->GetMaterial()->Texture);
 
-		cBuffer.WVP = w * v * p ;
-		cBuffer.WV  = w * v;
+	//for (auto& gameObject : scene->GetGameObjects())
+	//{
+	//	material = gameObject->GetMaterial();
 
-		cBuffer.ambientLightColour = { 0.25f, 0.25f, 0.25f, 1.0f };
-		cBuffer.directionalLightCol = { 0.0f, 0.0f, 0.0f, 0.0f };
-		cBuffer.directionalLightDir = { 0.0f, 0.0f, 0.0f, 0.0f };
+	//	// Set world matrix
+	//	w = gameObject->GetTransform().GetWorldMaxtrix();
 
-		m_DeviceContext->UpdateSubresource(m_CBuffer, 0, NULL, &cBuffer, 0, 0);
-		m_DeviceContext->VSSetConstantBuffers(0, 1, &m_CBuffer);
+	//	// Set material
+	//	m_DeviceContext->PSSetShaderResources(0, 1, &material->Texture);
 
-		gameObject->GetMesh()->Draw();
-	}
+	//	// Set shaders
+	//	m_DeviceContext->IASetInputLayout(material->Shader->InputLayout);
+	//	m_DeviceContext->VSSetShader(material->Shader->VertexShader, 0, 0);
+	//	m_DeviceContext->PSSetShader(material->Shader->PixelShader, 0, 0);
+
+	//	// Set up constant buffer
+	//	cBuffer.WVP = w * v * p ;
+	//	cBuffer.WV  = w * v;
+
+	//	cBuffer.ambientLightColour = { 0.25f, 0.25f, 0.25f, 1.0f };
+	//	cBuffer.directionalLightCol = { 0.0f, 0.0f, 0.0f, 0.0f };
+	//	cBuffer.directionalLightDir = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	//	// Update constant buffer
+	//	m_DeviceContext->UpdateSubresource(m_CBuffer, 0, NULL, &cBuffer, 0, 0);
+	//	m_DeviceContext->VSSetConstantBuffers(0, 1, &m_CBuffer);
+
+	//	// Draw mesh
+	//	gameObject->GetMesh()->Draw();
+	//}
 
 
 	m_SwapChain->Present(0, 0);

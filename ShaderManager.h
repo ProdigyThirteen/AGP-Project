@@ -18,8 +18,8 @@ private:
 	HRESULT LoadVertexShader(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext, LPCWSTR fileName, LPCSTR entrypoint, ShaderData& shader);
 	HRESULT LoadPixelShader(ID3D11Device* Device, LPCWSTR fileName, LPCSTR entrypoint, ShaderData& shader);
 
-	HRESULT LoadCompiledVertexShader(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext, LPCWSTR fileName, ShaderData& shader);
-	HRESULT LoadCompiledPixelShader(ID3D11Device* Device, LPCWSTR fileName, ShaderData& shader);
+	HRESULT LoadCompiledVertexShader(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext, LPCWSTR fileName, ShaderData* shader);
+	HRESULT LoadCompiledPixelShader(ID3D11Device* Device, LPCWSTR fileName, ShaderData* shader);
 
 public:
 	~ShaderManager() = default;

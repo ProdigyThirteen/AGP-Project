@@ -152,7 +152,7 @@ bool Game::Init(HINSTANCE hInstance, int nCmdShow)
 	MaterialDatabase::GetInstance().CreateNewMaterial("default", "default", "Box");
 	MaterialDatabase::GetInstance().CreateSkyboxMaterial("skybox", "skybox", "skybox01");
 
-
+	// Create scene
 	m_Scene = new Scene();
 	m_Scene->Init(m_Renderer->GetDevice(), m_Renderer->GetDeviceContext());
 

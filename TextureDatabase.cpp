@@ -10,11 +10,23 @@ void TextureDatabase::LoadTextures(const std::string& filepath, ID3D11Device* de
 	std::vector<std::string> pngTextures = StaticUtils::GetFilesInDirectory(filepath, ".png");
 	std::vector<std::string> jpgTextures = StaticUtils::GetFilesInDirectory(filepath, ".jpg");
 
+	HRESULT result;
+
 	for (std::string& texture : bmpTextures)
 	{
 		std::wstring wTexture = std::wstring(texture.begin(), texture.end());
 		ID3D11ShaderResourceView* srv;
-		DirectX::CreateWICTextureFromFile(device, devContext, wTexture.c_str(), nullptr, &srv);
+
+		wTexture = L"textures/" + wTexture;
+		result = DirectX::CreateWICTextureFromFile(device, devContext, wTexture.c_str(), nullptr, &srv);
+
+		if (FAILED(result))
+		{
+			OutputDebugString(L"Failed to load texture\n");
+			return;
+		}
+
+		texture = texture.substr(0, texture.find_last_of("."));
 		m_Textures[texture] = srv;
 	}
 
@@ -22,7 +34,15 @@ void TextureDatabase::LoadTextures(const std::string& filepath, ID3D11Device* de
 	{
 		std::wstring wTexture = std::wstring(texture.begin(), texture.end());
 		ID3D11ShaderResourceView* srv;
-		DirectX::CreateWICTextureFromFile(device, devContext, wTexture.c_str(), nullptr, &srv);
+		result = DirectX::CreateWICTextureFromFile(device, devContext, wTexture.c_str(), nullptr, &srv);
+
+		if (FAILED(result))
+		{
+			OutputDebugString(L"Failed to load texture\n");
+			return;
+		}
+
+		texture = texture.substr(0, texture.find_last_of("."));
 		m_Textures[texture] = srv;
 	}
 
@@ -30,7 +50,15 @@ void TextureDatabase::LoadTextures(const std::string& filepath, ID3D11Device* de
 	{
 		std::wstring wTexture = std::wstring(texture.begin(), texture.end());
 		ID3D11ShaderResourceView* srv;
-		DirectX::CreateWICTextureFromFile(device, devContext, wTexture.c_str(), nullptr, &srv);
+		result = DirectX::CreateWICTextureFromFile(device, devContext, wTexture.c_str(), nullptr, &srv);
+		
+		if (FAILED(result))
+		{
+			OutputDebugString(L"Failed to load texture\n");
+			return;
+		}
+		
+		texture = texture.substr(0, texture.find_last_of("."));
 		m_Textures[texture] = srv;
 	}
 }

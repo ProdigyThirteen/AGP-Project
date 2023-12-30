@@ -6,7 +6,7 @@
 struct CBUFFER0
 {
 	DirectX::XMMATRIX WVP;
-	DirectX::XMMATRIX WV;
+	//DirectX::XMMATRIX WV;
 	DirectX::XMVECTOR ambientLightColour;
 	DirectX::XMVECTOR directionalLightDir;
 	DirectX::XMVECTOR directionalLightCol;

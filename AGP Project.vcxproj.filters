@@ -116,6 +116,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="CompiledShaders\PixelShader.cso" />
+    <None Include="CompiledShaders\SkyboxPixelShader.cso" />
+    <None Include="CompiledShaders\SkyboxVertexShader.cso" />
+    <None Include="CompiledShaders\VertexShader.cso" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
@@ -130,5 +134,16 @@
     <FxCompile Include="VertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="meshes\cube.obj" />
+    <Object Include="meshes\Sphere.obj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\Box.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\skybox01.dds" />
+    <Image Include="textures\skybox02.dds" />
   </ItemGroup>
 </Project>

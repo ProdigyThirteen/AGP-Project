@@ -177,36 +177,36 @@ void Renderer::DrawFrame(Scene* scene)
 	// Set sampler state
 	m_DeviceContext->PSSetSamplers(0, 1, &m_SamplerState);
 
-	//for (auto& gameObject : scene->GetGameObjects())
-	//{
-	//	material = gameObject->GetMaterial();
+	for (auto& gameObject : scene->GetGameObjects())
+	{
+		material = gameObject->GetMaterial();
 
-	//	// Set world matrix
-	//	w = gameObject->GetTransform().GetWorldMaxtrix();
+		// Set world matrix
+		w = gameObject->GetTransform().GetWorldMaxtrix();
 
-	//	// Set material
-	//	m_DeviceContext->PSSetShaderResources(0, 1, &material->Texture);
+		// Set material
+		m_DeviceContext->PSSetShaderResources(0, 1, &material->Texture);
 
-	//	// Set shaders
-	//	m_DeviceContext->IASetInputLayout(material->Shader->InputLayout);
-	//	m_DeviceContext->VSSetShader(material->Shader->VertexShader, 0, 0);
-	//	m_DeviceContext->PSSetShader(material->Shader->PixelShader, 0, 0);
+		// Set shaders
+		m_DeviceContext->IASetInputLayout(material->Shader->InputLayout);
+		m_DeviceContext->VSSetShader(material->Shader->VertexShader, 0, 0);
+		m_DeviceContext->PSSetShader(material->Shader->PixelShader, 0, 0);
 
-	//	// Set up constant buffer
-	//	cBuffer.WVP = w * v * p ;
-	//	cBuffer.WV  = w * v;
+		// Set up constant buffer
+		cBuffer.WVP = w * v * p ;
+		//cBuffer.WV  = w * v;
 
-	//	cBuffer.ambientLightColour = { 0.25f, 0.25f, 0.25f, 1.0f };
-	//	cBuffer.directionalLightCol = { 0.0f, 0.0f, 0.0f, 0.0f };
-	//	cBuffer.directionalLightDir = { 0.0f, 0.0f, 0.0f, 0.0f };
+		cBuffer.ambientLightColour = { 0.5f, 0.5f, 0.5f, 1.0f };
+		cBuffer.directionalLightCol = { 0.0f, 0.0f, 0.0f, 0.0f };
+		cBuffer.directionalLightDir = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-	//	// Update constant buffer
-	//	m_DeviceContext->UpdateSubresource(m_CBuffer, 0, NULL, &cBuffer, 0, 0);
-	//	m_DeviceContext->VSSetConstantBuffers(0, 1, &m_CBuffer);
+		// Update constant buffer
+		m_DeviceContext->UpdateSubresource(m_CBuffer, 0, NULL, &cBuffer, 0, 0);
+		m_DeviceContext->VSSetConstantBuffers(0, 1, &m_CBuffer);
 
-	//	// Draw mesh
-	//	gameObject->GetMesh()->Draw();
-	//}
+		// Draw mesh
+		gameObject->GetMesh()->Draw();
+	}
 
 
 	m_SwapChain->Present(0, 0);

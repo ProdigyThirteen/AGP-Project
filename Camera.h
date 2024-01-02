@@ -13,8 +13,11 @@ struct Camera
 		DirectX::XMVECTOR eyePos{ x, y, z };
 		DirectX::XMVECTOR camUp{ 0, 1, 0 };
 
-		if(pitch == 0 && yaw == 0)
+		if (pitch == 0 && yaw == 0)
+		{
 			pitch = 0.0001f;
+			yaw = 0.0001f;
+		}
 
 		DirectX::XMVECTOR lookTo{ sin(yaw)* sin(pitch),
 			cos(pitch),

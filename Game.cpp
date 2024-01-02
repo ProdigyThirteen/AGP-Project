@@ -158,6 +158,7 @@ bool Game::Init(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	// Create materials from textures and shaders
+	MaterialDatabase::GetInstance().CreateNewMaterial("missile", "default", "missile");
 	MaterialDatabase::GetInstance().CreateNewMaterial("default", "default", "Box");
 	MaterialDatabase::GetInstance().CreateSkyboxMaterial("skybox", "skybox", "skybox01");
 

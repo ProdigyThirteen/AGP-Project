@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Renderer.h"
 #include "Skybox.h"
+#include "Player.h"
 
 bool Scene::Init(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext)
 {
@@ -18,6 +19,14 @@ bool Scene::Init(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext)
 
 	m_Camera = new Camera();
 	m_Camera->SetPosition(0.0f, 0.0f, 0.0f);
+
+	// Create basic game objects to visualise world
+	GameObject* cube = new GameObject("cube", "default");
+	m_GameObjects.push_back(cube);
+
+	GameObject* plr = new Player("cube", "default", m_Camera);
+	m_GameObjects.push_back(plr);
+
 
 	return true;
 }

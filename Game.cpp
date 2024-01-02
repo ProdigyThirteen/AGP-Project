@@ -12,6 +12,7 @@
 #include "ShaderManager.h"
 #include "MaterialDatabase.h"
 #include "InputManager.h"
+#include "Time.h"
 
 // TODO: Remove
 #include "GameObject.h"
@@ -170,7 +171,6 @@ bool Game::Init(HINSTANCE hInstance, int nCmdShow)
 
 	// Add cube to scene
 	GameObject* cube = new GameObject("cube", "default");
-	cube->SetCamera(m_Scene->GetCamera());
 	m_Scene->AddGameObject(cube);
 
 	// Init input manager
@@ -199,8 +199,9 @@ void Game::Run()
 	else
 	{
 		// Update
+		Time::Update();
 		InputManager::GetInstance().UpdateStates();
-		m_Scene->Update(0.0f);
+		m_Scene->Update(Time::GetDeltaTime());
 		m_Renderer->DrawFrame(m_Scene);
 	}
 

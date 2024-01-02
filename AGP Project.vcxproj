@@ -142,12 +142,14 @@
     <ClCompile Include="MaterialDatabase.cpp" />
     <ClCompile Include="MeshDatabase.cpp" />
     <ClCompile Include="objfilemodel.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="StaticUtils.cpp" />
     <ClCompile Include="TextureDatabase.cpp" />
+    <ClCompile Include="Time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -160,6 +162,7 @@
     <ClInclude Include="MaterialDatabase.h" />
     <ClInclude Include="MeshDatabase.h" />
     <ClInclude Include="objfilemodel.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="ReadData.h" />
     <ClInclude Include="Renderer.h" />
@@ -169,6 +172,7 @@
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="StaticUtils.h" />
     <ClInclude Include="TextureDatabase.h" />
+    <ClInclude Include="Time.h" />
     <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>

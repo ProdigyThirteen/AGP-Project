@@ -6,7 +6,7 @@
 struct Camera
 {
 	float x = 0, y = 0, z = 0;
-	float pitch = DirectX::XM_PIDIV2, yaw = 0;
+	float pitch = DirectX::XM_PIDIV2, yaw = 0, roll = 0;
 
 	DirectX::XMMATRIX GetViewMatrix()
 	{
@@ -30,9 +30,10 @@ struct Camera
 		this->z = z;
 	}
 
-	void SetRotation(float pitch, float yaw)
+	void SetRotation(float pitch, float yaw, float roll)
 	{
 		this->pitch = pitch;
 		this->yaw = yaw;
+		this->roll = roll;
 	}
 };

@@ -15,4 +15,29 @@ struct Transform
 		const DirectX::XMMATRIX world = scale * rotation * translation;
 		return world;
 	}
+
+	// Forward vector
+	DirectX::XMVECTOR GetForwardVector()
+	{
+		const DirectX::XMVECTOR lookTo = DirectX::XMVector3Normalize(DirectX::XMVectorSet(sin(rot.y) * sin(rot.x),
+										 cos(rot.x),
+										 cos(rot.y) * sin(rot.x), 0));
+		return lookTo;
+	}
+
+	// Right vector
+	DirectX::XMVECTOR GetRightVector()
+	{
+		const DirectX::XMVECTOR right = DirectX::XMVector3Cross(GetForwardVector(), DirectX::XMVectorSet(0, 1, 0, 0));
+		return right;
+	}
+
+	// Up vector
+	DirectX::XMVECTOR GetUpVector()
+	{
+		const DirectX::XMVECTOR lookTo = DirectX::XMVector3Normalize(DirectX::XMVectorSet(sin(rot.y) * sin(rot.x + DirectX::XM_PIDIV2),
+										 cos(rot.x + DirectX::XM_PIDIV2),
+										 cos(rot.y) * sin(rot.x + DirectX::XM_PIDIV2), 0));
+		return lookTo;
+	}
 };

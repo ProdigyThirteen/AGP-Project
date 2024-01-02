@@ -1,12 +1,17 @@
 #include "Game.h"
+
 #include <Windows.h>
 #include <d3d11.h>
+#include <Mouse.h>
+#include <Keyboard.h>
+
 #include "Globals.h"
 #include "Renderer.h"
 #include "MeshDatabase.h"
 #include "TextureDatabase.h"
 #include "ShaderManager.h"
 #include "MaterialDatabase.h"
+#include "InputManager.h"
 
 // TODO: Remove
 #include "GameObject.h"
@@ -24,18 +29,18 @@ LRESULT Game::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_ACTIVATE:
 	case WM_ACTIVATEAPP:
 	case WM_INPUT:
-		// TODO: Handle input
-		// Mouse::ProcessMessage(message, wParam, lParam);
-		// Keyboard::ProcessMessage(message, wParam, lParam);
+		DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
+		DirectX::Mouse::ProcessMessage(message, wParam, lParam);
 		break;
 
 	case WM_SYSKEYDOWN:
-		//Keyboard::ProcessMessage(message, wParam, lParam);
+		DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
+		break;
 
 	case WM_KEYDOWN:
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
-		//Keyboard::ProcessMessage(message, wParam, lParam);
+		DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
 		break;
 
 	case WM_MOUSEACTIVATE:
@@ -52,7 +57,7 @@ LRESULT Game::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_XBUTTONDOWN:
 	case WM_XBUTTONUP:
 	case WM_MOUSEHOVER:
-		//Mouse::ProcessMessage(message, wParam, lParam);
+		DirectX::Mouse::ProcessMessage(message, wParam, lParam);
 		break;
 
 	default:
@@ -60,9 +65,7 @@ LRESULT Game::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-	//CleanD3D();
-
-	return 0;
+	return S_OK;
 }
 
 HRESULT Game::InitWindow(HINSTANCE hInstance, int nCmdShow)
@@ -146,7 +149,12 @@ bool Game::Init(HINSTANCE hInstance, int nCmdShow)
 	TextureDatabase::GetInstance().CreateSkyboxTexture("skybox01", m_Renderer->GetDevice(), m_Renderer->GetDeviceContext());
 
 	// Create shaders
-	ShaderManager::GetInstance().CreateShaders(m_Renderer->GetDevice(), m_Renderer->GetDeviceContext());
+	hr = ShaderManager::GetInstance().CreateShaders(m_Renderer->GetDevice(), m_Renderer->GetDeviceContext());
+	if (FAILED(hr))
+	{
+		OutputDebugString(L"Failed to create shaders\n");
+		return false;
+	}
 
 	// Create materials from textures and shaders
 	MaterialDatabase::GetInstance().CreateNewMaterial("default", "default", "Box");
@@ -154,12 +162,24 @@ bool Game::Init(HINSTANCE hInstance, int nCmdShow)
 
 	// Create scene
 	m_Scene = new Scene();
-	m_Scene->Init(m_Renderer->GetDevice(), m_Renderer->GetDeviceContext());
+	if (!m_Scene->Init(m_Renderer->GetDevice(), m_Renderer->GetDeviceContext()))
+	{
+		OutputDebugString(L"Failed to init scene\n");
+		return false;
+	}
 
 	// Add cube to scene
 	GameObject* cube = new GameObject("cube", "default");
+	cube->SetCamera(m_Scene->GetCamera());
 	m_Scene->AddGameObject(cube);
 
+	// Init input manager
+	hr = InputManager::GetInstance().Init(hWnd);
+	if (FAILED(hr))
+	{
+		OutputDebugString(L"Failed to init input manager\n");
+		return false;
+	}
 
 
 	bGameOver = false;
@@ -178,6 +198,9 @@ void Game::Run()
 	}
 	else
 	{
+		// Update
+		InputManager::GetInstance().UpdateStates();
+		m_Scene->Update(0.0f);
 		m_Renderer->DrawFrame(m_Scene);
 	}
 

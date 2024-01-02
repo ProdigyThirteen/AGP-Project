@@ -4,6 +4,8 @@
 #include "Transform.h"
 #include "Material.h"
 
+class Camera;
+
 class GameObject
 {
 private:
@@ -19,6 +21,10 @@ private:
 		{ 1.0f, 1.0f, 1.0f }	// Scale
 	};
 
+	Camera* cam = nullptr;
+	void TestCameraTurn();
+	void TestFunc();
+
 
 public:
 	GameObject(const char* MeshName, const char* MaterialName);
@@ -29,6 +35,8 @@ public:
 	ObjFileModel* GetMesh() { return m_ObjectMesh; }
 	Material*	  GetMaterial() { return m_Material; }
 	Transform	  GetTransform() { return m_Transform; }
+
+	void SetCamera(Camera* camera) { cam = camera; }
 
 };
 

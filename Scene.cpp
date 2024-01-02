@@ -18,7 +18,6 @@ bool Scene::Init(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext)
 
 	m_Camera = new Camera();
 	m_Camera->SetPosition(0.0f, 0.0f, 0.0f);
-	//m_Camera->SetRotation(0.0f, 0.0f);
 
 	return true;
 }
@@ -30,4 +29,8 @@ void Scene::AddGameObject(GameObject* gameObject)
 
 void Scene::Update(float deltaTime)
 {
+	for (auto gameObject : m_GameObjects)
+	{
+		gameObject->Update(deltaTime);
+	}
 }

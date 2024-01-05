@@ -1,43 +1,36 @@
 #pragma once
-#include <DirectXMath.h>
+#include <SimpleMath.h>
 
 struct Transform
 {
-	DirectX::XMFLOAT3 pos;
-	DirectX::XMFLOAT3 rot;
-	DirectX::XMFLOAT3 scl;
+	DirectX::SimpleMath::Vector3	pos = { 0, 0, 0 };
+	DirectX::SimpleMath::Quaternion rot = { 0, 0, 0, 1 };
+	DirectX::SimpleMath::Vector3	scl = { 1, 1, 1 };
 
-	DirectX::XMMATRIX GetWorldMaxtrix()
+	DirectX::XMMATRIX GetWorldMatrix()
 	{
-		const DirectX::XMMATRIX translation = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
-		const DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
-		const DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(scl.x, scl.y, scl.z);
-		const DirectX::XMMATRIX world = scale * rotation * translation;
-		return world;
+		DirectX::XMMATRIX translation = DirectX::XMMatrixTranslationFromVector(pos);
+		DirectX::XMMATRIX rotation =	DirectX::XMMatrixRotationQuaternion(rot);
+		DirectX::XMMATRIX scaling =		DirectX::XMMatrixScalingFromVector(scl);
+
+		return scaling * rotation * translation;
 	}
 
-	// Forward vector
-	DirectX::XMVECTOR GetForwardVector()
-	{
-		const DirectX::XMVECTOR lookTo = DirectX::XMVector3Normalize(DirectX::XMVectorSet(sin(rot.y) * sin(rot.x),
-										 cos(rot.x),
-										 cos(rot.y) * sin(rot.x), 0));
-		return lookTo;
-	}
+    // Get the forward vector
+    DirectX::SimpleMath::Vector3 Forward() const
+    {
+        return DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::Forward, rot);
+    }
 
-	// Right vector
-	DirectX::XMVECTOR GetRightVector()
-	{
-		const DirectX::XMVECTOR right = DirectX::XMVector3Cross(GetForwardVector(), DirectX::XMVectorSet(0, 1, 0, 0));
-		return right;
-	}
+    // Get the right vector
+    DirectX::SimpleMath::Vector3 Right() const
+    {
+        return DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::Right, rot);
+    }
 
-	// Up vector
-	DirectX::XMVECTOR GetUpVector()
-	{
-		const DirectX::XMVECTOR lookTo = DirectX::XMVector3Normalize(DirectX::XMVectorSet(sin(rot.y) * sin(rot.x + DirectX::XM_PIDIV2),
-										 cos(rot.x + DirectX::XM_PIDIV2),
-										 cos(rot.y) * sin(rot.x + DirectX::XM_PIDIV2), 0));
-		return lookTo;
-	}
+    // Get the up vector
+    DirectX::SimpleMath::Vector3 Up() const
+    {
+        return DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::Up, rot);
+    }
 };

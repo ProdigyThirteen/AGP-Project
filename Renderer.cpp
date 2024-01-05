@@ -167,9 +167,9 @@ void Renderer::DrawFrame(Scene* scene)
 	scene->GetSkybox()->Draw(m_DeviceContext, scene->GetCamera());
 
 	// Setting up data for drawing objects
-	DirectX::XMMATRIX w, v, p;
-	v = scene->GetCamera()->GetViewMatrix();
-	p = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(60), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+	DirectX::XMMATRIX w;
+	DirectX::XMMATRIX v = scene->GetCamera()->GetViewMatrix();
+	DirectX::XMMATRIX p = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(60), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
 	CBUFFER0 cBuffer;
 	Material* material;
@@ -182,7 +182,7 @@ void Renderer::DrawFrame(Scene* scene)
 		material = gameObject->GetMaterial();
 
 		// Set world matrix
-		w = gameObject->GetTransform().GetWorldMaxtrix();
+		w = gameObject->GetTransform().GetWorldMatrix();
 
 		// Set material
 		m_DeviceContext->PSSetShaderResources(0, 1, &material->Texture);
@@ -205,7 +205,9 @@ void Renderer::DrawFrame(Scene* scene)
 		m_DeviceContext->VSSetConstantBuffers(0, 1, &m_CBuffer);
 
 		// Draw mesh
-		gameObject->GetMesh()->Draw();
+		auto mesh = gameObject->GetMesh();
+		if (mesh)
+			mesh->Draw();
 	}
 
 

@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "InputManager.h"
 #include "Camera.h"
+#include "BoxCollider.h"
 
 #include <DirectXMath.h>
 
@@ -8,91 +9,77 @@ Player::Player(const char* MeshName, const char* MaterialName, Camera* cam)
 	: GameObject(MeshName, MaterialName),
 	  m_Camera(cam)
 {
+	m_Camera->pos = { 0,0,-10 };
 
 	m_Transform.pos = { 0,0,10 };
-	m_Transform.rot = { 0,DirectX::XM_PIDIV2,0 };
+	m_Transform.rot = { 0,0,0,1 };
+	m_Transform.scl = { 0.25f,0.25f,0.25f };
 
 	m_Sense = DirectX::XM_2PI * 0.00025f;
-	m_Speed = 5.f;
+	m_Speed = 25.f;
+	m_RotDeg = 3;
+
+	m_Collider = new BoxCollider("Player");
+	m_Collider->SetPosition(m_Transform.pos);
+	m_Collider->SetRotation(m_Transform.rot);
+	m_Collider->SetScale({1,1,1});
+	m_Collider->SetOnCollision(std::bind(&Player::OnCollision, this, std::placeholders::_1));
 }
 
 Player::~Player()
 {
+	delete m_Collider;
 }
 
 void Player::Move(float deltaTime)
 {
 	auto kbState = InputManager::GetInstance().GetKeyboardState();
-	const float moveSpeed = m_Speed * deltaTime;
+	const float speed = m_Speed * deltaTime;
 
-	auto fv = m_Transform.GetForwardVector();
-	auto rv = m_Transform.GetRightVector();
+	auto fv = m_Transform.Forward();
+	auto rv = m_Transform.Right();
 
+	// Movement
 	if (kbState.W)
-	{
-		m_Transform.pos.x += DirectX::XMVectorGetX(fv) * moveSpeed;
-		m_Transform.pos.y += DirectX::XMVectorGetY(fv) * moveSpeed;
-		m_Transform.pos.z += DirectX::XMVectorGetZ(fv) * moveSpeed;
-	}
-
+		m_Transform.pos += fv * speed;
 	if (kbState.S)
-	{
-		m_Transform.pos.x -= DirectX::XMVectorGetX(fv) * moveSpeed;
-		m_Transform.pos.y -= DirectX::XMVectorGetY(fv) * moveSpeed;
-		m_Transform.pos.z -= DirectX::XMVectorGetZ(fv) * moveSpeed;
-	}
-
-	if (kbState.A)
-	{
-		m_Transform.pos.x += DirectX::XMVectorGetX(rv) * moveSpeed;
-		m_Transform.pos.y += DirectX::XMVectorGetY(rv) * moveSpeed;
-		m_Transform.pos.z += DirectX::XMVectorGetZ(rv) * moveSpeed;
-	}
-
-	if (kbState.D)
-	{
-		m_Transform.pos.x -= DirectX::XMVectorGetX(rv) * moveSpeed;
-		m_Transform.pos.y -= DirectX::XMVectorGetY(rv) * moveSpeed;
-		m_Transform.pos.z -= DirectX::XMVectorGetZ(rv) * moveSpeed;
-	}
-
-	if (kbState.Space)
-	{
-		m_Transform.pos.y += moveSpeed;
-	}
-
-	if (kbState.LeftControl)
-	{
-		m_Transform.pos.y -= moveSpeed;
-	}
+		m_Transform.pos -= fv * speed;
 }
 
 void Player::Rotate(float deltaTime)
 {
 	auto mouseState = InputManager::GetInstance().GetMouseState();
 
-	m_Transform.rot.x += mouseState.y * m_Sense;
-	m_Transform.rot.y += mouseState.x * m_Sense;
+	float x = mouseState.x;
+	float y = mouseState.y;
+
+	// Rotation
+	if (x != 0)
+		m_Transform.rot *= DirectX::XMQuaternionRotationAxis({ 0,1,0 }, x * m_Sense);
+
+	if (y != 0)
+		m_Transform.rot *= DirectX::XMQuaternionRotationAxis(m_Transform.Right(), -y * m_Sense);
+
 }
 
 void Player::UpdateCamera()
 {
-	auto fv = m_Transform.GetForwardVector();
-	float x = DirectX::XMVectorGetX(fv) * camZOffset;
-	float y = DirectX::XMVectorGetY(fv) * camZOffset;
-	float z = DirectX::XMVectorGetZ(fv) * camZOffset;
+	auto fv = m_Transform.Forward();
+	auto uv = m_Transform.Up();
 
-	auto uv = m_Transform.GetUpVector();
-	x += DirectX::XMVectorGetX(uv) * camYOffset;
-	y += DirectX::XMVectorGetY(uv) * camYOffset;
-	z += DirectX::XMVectorGetZ(uv) * camYOffset;
+	m_Camera->pos = m_Transform.pos + fv * -10 + uv * 5;
+	m_Camera->rot = m_Transform.rot;
 
-	m_Camera->SetPosition(m_Transform.pos.x + x, 
-						  m_Transform.pos.y + y, 
-						  m_Transform.pos.z + z);
+}
 
+void Player::OnCollision(BoxCollider* other)
+{
+	const char* tag = other->GetTag();
 
-	m_Camera->SetRotation(m_Transform.rot.x, m_Transform.rot.y, m_Transform.rot.z);
+	if (tag == "Collectable")
+	{
+		//OutputDebugStringA("Player collided with Collectable\n");
+	}
 }
 
 void Player::Update(float deltaTime)
@@ -100,4 +87,8 @@ void Player::Update(float deltaTime)
 	Move(deltaTime);
 	Rotate(deltaTime);
 	UpdateCamera();
+	m_Transform.rot.Normalize();
+
+	m_Collider->SetPosition(m_Transform.pos);
+	m_Collider->SetRotation(m_Transform.rot);
 }

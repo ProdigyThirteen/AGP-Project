@@ -120,7 +120,7 @@ void Skybox::Draw(ID3D11DeviceContext* DeviceContext, Camera* cam)
 	// Constant buffer data
 	SkyboxCBuffer cBuffer = { DirectX::XMMATRIX() };
 	DirectX::XMMATRIX translation, projection, view;
-	translation = DirectX::XMMatrixTranslation(cam->x, cam->y, cam->z);
+	translation = DirectX::XMMatrixTranslationFromVector(cam->pos);
 	projection  = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(60), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
 	view = cam->GetViewMatrix();

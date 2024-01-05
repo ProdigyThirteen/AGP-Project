@@ -12,6 +12,8 @@ class Scene
 {
 private:
 	std::vector<GameObject*> m_GameObjects;
+	std::vector<GameObject*> m_GameObjectsToAdd;
+	std::vector<GameObject*> m_GameObjectsToRemove;
 
 	Camera* m_Camera = nullptr;
 	Skybox* m_Skybox = nullptr;
@@ -23,6 +25,7 @@ public:
 	bool Init(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext);
 
 	void AddGameObject(GameObject* gameObject);
+	void RemoveGameObject(GameObject* gameObject);
 
 	void Update(float deltaTime);
 

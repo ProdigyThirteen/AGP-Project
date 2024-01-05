@@ -1,42 +1,33 @@
 #pragma once
 
 #include <d3d11.h>
-#include <DirectXMath.h>
+#include <SimpleMath.h>
 
 struct Camera
 {
-	float x = 0, y = 0, z = 0;
-	float pitch = DirectX::XM_PIDIV2, yaw = 0, roll = 0;
+	DirectX::SimpleMath::Vector3 pos = { 0, 0, -5 };
+	DirectX::SimpleMath::Quaternion rot = { 0, 0, 0, 1 };
 
 	DirectX::XMMATRIX GetViewMatrix()
 	{
-		DirectX::XMVECTOR eyePos{ x, y, z };
-		DirectX::XMVECTOR camUp{ 0, 1, 0 };
+		DirectX::SimpleMath::Vector3 forward = Forward();
+		DirectX::SimpleMath::Vector3 up = DirectX::SimpleMath::Vector3::Up;
 
-		if (pitch == 0 && yaw == 0)
-		{
-			pitch = 0.0001f;
-			yaw = 0.0001f;
-		}
-
-		DirectX::XMVECTOR lookTo{ sin(yaw)* sin(pitch),
-			cos(pitch),
-			cos(yaw)* sin(pitch) };
-		DirectX::XMMATRIX view = DirectX::XMMatrixLookToLH(eyePos, lookTo, camUp);
-		return view;
+		return DirectX::XMMatrixLookToLH(pos, forward, up);
 	}
 
-	void SetPosition(float x, float y, float z)
+	DirectX::SimpleMath::Vector3 Forward()
 	{
-		this->x = x;
-		this->y = y;
-		this->z = z;
+		return DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::Forward, rot);
 	}
 
-	void SetRotation(float pitch, float yaw, float roll)
+	DirectX::SimpleMath::Vector3 Right()
 	{
-		this->pitch = pitch;
-		this->yaw = yaw;
-		this->roll = roll;
+		return { sin(rot.y - DirectX::XM_PIDIV2), 0, cos(rot.y - DirectX::XM_PIDIV2) };
+	}
+
+	DirectX::SimpleMath::Vector3 Up()
+	{
+		return DirectX::SimpleMath::Vector3::Up * rot;
 	}
 };

@@ -13,9 +13,7 @@
 #include "MaterialDatabase.h"
 #include "InputManager.h"
 #include "Time.h"
-
-// TODO: Remove
-#include "GameObject.h"
+#include "CollisionManager.h"
 
 Game* Game::instance = nullptr;
 
@@ -170,10 +168,6 @@ bool Game::Init(HINSTANCE hInstance, int nCmdShow)
 		return false;
 	}
 
-	// Add cube to scene
-	GameObject* cube = new GameObject("cube", "default");
-	m_Scene->AddGameObject(cube);
-
 	// Init input manager
 	hr = InputManager::GetInstance().Init(hWnd);
 	if (FAILED(hr))
@@ -202,6 +196,7 @@ void Game::Run()
 		// Update
 		Time::Update();
 		InputManager::GetInstance().UpdateStates();
+		CollisionManager::GetInstance().CheckCollisions();
 		m_Scene->Update(Time::GetDeltaTime());
 		m_Renderer->DrawFrame(m_Scene);
 	}
@@ -212,6 +207,8 @@ void Game::Cleanup()
 {
 	OutputDebugString(L"Starting game cleanup\n");
 	delete m_Renderer;
+	delete m_Scene;
+	CollisionManager::GetInstance().Clear();
 }
 
 

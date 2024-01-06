@@ -4,6 +4,7 @@
 #include "BoxCollider.h"
 
 #include <DirectXMath.h>
+#include "SoundManager.h"
 
 Player::Player(const char* MeshName, const char* MaterialName, Camera* cam) 
 	: GameObject(MeshName, MaterialName),
@@ -24,6 +25,10 @@ Player::Player(const char* MeshName, const char* MaterialName, Camera* cam)
 	m_Collider->SetRotation(m_Transform.rot);
 	m_Collider->SetScale({1,1,1});
 	m_Collider->SetOnCollision(std::bind(&Player::OnCollision, this, std::placeholders::_1));
+
+	// Set up listener
+	SoundManager::GetInstance().SetListenerPosition(m_Transform.pos);
+	SoundManager::GetInstance().SetListenerOrientationFromQuaternion(m_Transform.rot);
 }
 
 Player::~Player()
@@ -62,6 +67,25 @@ void Player::Rotate(float deltaTime)
 
 }
 
+void Player::PlayDirectionalSound()
+{
+	// Play sound in direction of pressed arrow key
+	auto kbState = InputManager::GetInstance().GetKeyboardTracker();
+
+	// if kb up PRESSED
+	if (kbState->pressed.Up)
+		SoundManager::GetInstance().PlaySpatialSoundEffect("explosion",{m_Transform.pos.x + 50, m_Transform.pos.y, m_Transform.pos.z + 50},  false);
+
+	if (kbState->pressed.Down)
+		SoundManager::GetInstance().PlaySpatialSoundEffect("explosion", {m_Transform.pos.x, m_Transform.pos.y, m_Transform.pos.z - 50}, false);
+
+	if (kbState->pressed.Right)
+		SoundManager::GetInstance().PlaySpatialSoundEffect("explosion", {m_Transform.pos.x + 50, m_Transform.pos.y, m_Transform.pos.z}, false);
+
+	if (kbState->pressed.Left)
+		SoundManager::GetInstance().PlaySpatialSoundEffect("explosion", {m_Transform.pos.x - 50, m_Transform.pos.y, m_Transform.pos.z}, false);
+}
+
 void Player::UpdateCamera()
 {
 	auto fv = m_Transform.Forward();
@@ -86,9 +110,15 @@ void Player::Update(float deltaTime)
 {
 	Move(deltaTime);
 	Rotate(deltaTime);
+
+	// Debugging
+	PlayDirectionalSound();
+	
 	UpdateCamera();
 	m_Transform.rot.Normalize();
 
 	m_Collider->SetPosition(m_Transform.pos);
 	m_Collider->SetRotation(m_Transform.rot);
+
+	SoundManager::GetInstance().UpdateListener(m_Transform.pos, m_Transform.rot, deltaTime);
 }

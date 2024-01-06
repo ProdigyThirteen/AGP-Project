@@ -37,5 +37,8 @@ public:
 	DirectX::Mouse::State GetMouseState() const { return m_MouseState; }
 	DirectX::Keyboard::State GetKeyboardState() const { return m_KeyboardState; }
 
+	DirectX::Keyboard::KeyboardStateTracker* GetKeyboardTracker() const { return m_KeyboardTracker; }
+	DirectX::Mouse::ButtonStateTracker* GetMouseTracker() const { return m_MouseTracker; }
+
 };
 

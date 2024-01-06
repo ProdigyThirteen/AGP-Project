@@ -32,3 +32,12 @@ ObjFileModel* MeshDatabase::GetMesh(std::string name)
 {
 	return m_meshes[name];
 }
+
+void MeshDatabase::ReleaseMeshes()
+{
+	for (auto& mesh : m_meshes)
+	{
+		delete mesh.second;
+		mesh.second = nullptr;
+	}
+}

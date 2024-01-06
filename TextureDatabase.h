@@ -28,5 +28,7 @@ public:
 	ID3D11ShaderResourceView* CreateSkyboxTexture(const std::string& textureName, ID3D11Device* device, ID3D11DeviceContext* devContext);
 
 	ID3D11ShaderResourceView* GetTexture(const std::string& aName);
+
+	void ReleaseTextures();
 };
 

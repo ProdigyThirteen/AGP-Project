@@ -1,6 +1,6 @@
 #pragma once
 #include "GameObject.h"
-class Camera;
+struct Camera;
 class BoxCollider;
 
 class Player : public GameObject
@@ -14,6 +14,9 @@ private:
 
 	void Move(float deltaTime);
 	void Rotate(float deltaTime);
+
+	// For debugging
+	void PlayDirectionalSound();
 
 	Camera* m_Camera = nullptr;
 	const float camYOffset = 5.f;

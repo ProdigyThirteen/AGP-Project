@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include <Mouse.h>
 #include <Keyboard.h>
+#include <ostream>
 
 #include "Globals.h"
 #include "Renderer.h"
@@ -14,6 +15,7 @@
 #include "InputManager.h"
 #include "Time.h"
 #include "CollisionManager.h"
+#include "SoundManager.h"
 
 Game* Game::instance = nullptr;
 
@@ -68,7 +70,7 @@ LRESULT Game::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 HRESULT Game::InitWindow(HINSTANCE hInstance, int nCmdShow)
-{
+{	
 	this->hInstance = hInstance;
 
 	WNDCLASSEX wcex = {};
@@ -141,8 +143,20 @@ bool Game::Init(HINSTANCE hInstance, int nCmdShow)
 		return false;
 	}
 	OutputDebugString(L"Renderer initialized\n");
+	
+	// Set up audio
+	hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	if (FAILED(hr))
+	{
+		OutputDebugString(L"Failed to init COM\n");
+		return false;
+	}
+
+	SoundManager::GetInstance().Init();
 
 	// Load assets
+	SoundManager::GetInstance().LoadSoundEffects("audio/");
+
 	MeshDatabase::GetInstance().LoadMeshes("meshes/", m_Renderer);
 	TextureDatabase::GetInstance().LoadTextures("textures/", m_Renderer->GetDevice(), m_Renderer->GetDeviceContext());
 	TextureDatabase::GetInstance().CreateSkyboxTexture("skybox01", m_Renderer->GetDevice(), m_Renderer->GetDeviceContext());
@@ -195,10 +209,14 @@ void Game::Run()
 	{
 		// Update
 		Time::Update();
+
 		InputManager::GetInstance().UpdateStates();
 		CollisionManager::GetInstance().CheckCollisions();
+
 		m_Scene->Update(Time::GetDeltaTime());
 		m_Renderer->DrawFrame(m_Scene);
+
+		SoundManager::GetInstance().Update();
 	}
 
 }
@@ -209,6 +227,11 @@ void Game::Cleanup()
 	delete m_Renderer;
 	delete m_Scene;
 	CollisionManager::GetInstance().Clear();
+	TextureDatabase::GetInstance().ReleaseTextures();
+	MeshDatabase::GetInstance().ReleaseMeshes();
+	MaterialDatabase::GetInstance().ReleaseMaterials();
+	ShaderManager::GetInstance().ReleaseShaders();
+	SoundManager::GetInstance().Cleanup();
 }
 
 

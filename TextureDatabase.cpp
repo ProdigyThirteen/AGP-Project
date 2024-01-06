@@ -15,9 +15,10 @@ void TextureDatabase::LoadTextures(const std::string& filepath, ID3D11Device* de
 	for (std::string& texture : bmpTextures)
 	{
 		std::wstring wTexture = std::wstring(texture.begin(), texture.end());
+		std::wstring fp = std::wstring(filepath.begin(), filepath.end());
 		ID3D11ShaderResourceView* srv;
 
-		wTexture = L"textures/" + wTexture;
+		wTexture = fp + wTexture;
 		result = DirectX::CreateWICTextureFromFile(device, devContext, wTexture.c_str(), nullptr, &srv);
 
 		if (FAILED(result))
@@ -33,7 +34,10 @@ void TextureDatabase::LoadTextures(const std::string& filepath, ID3D11Device* de
 	for (std::string& texture : pngTextures)
 	{
 		std::wstring wTexture = std::wstring(texture.begin(), texture.end());
+		std::wstring fp = std::wstring(filepath.begin(), filepath.end());
 		ID3D11ShaderResourceView* srv;
+
+		wTexture = fp + wTexture;
 		result = DirectX::CreateWICTextureFromFile(device, devContext, wTexture.c_str(), nullptr, &srv);
 
 		if (FAILED(result))
@@ -49,7 +53,10 @@ void TextureDatabase::LoadTextures(const std::string& filepath, ID3D11Device* de
 	for (std::string& texture : jpgTextures)
 	{
 		std::wstring wTexture = std::wstring(texture.begin(), texture.end());
+		std::wstring fp = std::wstring(filepath.begin(), filepath.end());
 		ID3D11ShaderResourceView* srv;
+
+		wTexture = fp + wTexture;
 		result = DirectX::CreateWICTextureFromFile(device, devContext, wTexture.c_str(), nullptr, &srv);
 		
 		if (FAILED(result))
@@ -95,4 +102,15 @@ ID3D11ShaderResourceView* TextureDatabase::GetTexture(const std::string& aName)
 	}
 
 	return m_Textures[aName];
+}
+
+void TextureDatabase::ReleaseTextures()
+{
+	for (auto& texture : m_Textures)
+	{
+		texture.second->Release();
+		texture.second = nullptr;
+	}
+
+	m_Textures.clear();
 }

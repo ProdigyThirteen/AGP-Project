@@ -5,6 +5,7 @@
 #include "Skybox.h"
 #include "Player.h"
 #include "Collectable.h"
+#include "SoundManager.h"
 
 bool Scene::Init(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext)
 {
@@ -20,7 +21,7 @@ bool Scene::Init(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext)
 
 	m_Camera = new Camera();
 
-	// Create 20 collectables
+	// Create some collectables
 	for (int i = 0; i < 20; ++i)
 	{
 		GameObject* cube = new Collectable("cube", "default");
@@ -29,6 +30,8 @@ bool Scene::Init(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext)
 
 	GameObject* plr = new Player("AIM120D", "missile", m_Camera);
 	m_GameObjects.push_back(plr);
+
+	SoundManager::GetInstance().PlaySoundEffectInstance("ambient", true);
 
 
 	return true;

@@ -287,3 +287,13 @@ ShaderData* ShaderManager::GetShader(const std::string& shaderName)
 
 	return m_shaders[shaderName];
 }
+
+void ShaderManager::ReleaseShaders()
+{
+	for (auto& shader : m_shaders)
+	{
+		delete shader.second;
+		shader.second = nullptr;
+	}
+	m_shaders.clear();
+}

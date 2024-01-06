@@ -33,5 +33,7 @@ public:
 	HRESULT CreateShaders(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext);
 
 	ShaderData* GetShader(const std::string& shaderName);
+
+	void ReleaseShaders();
 };
 

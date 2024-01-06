@@ -24,5 +24,7 @@ public:
 	void LoadMeshes(std::string filename, Renderer* Renderer);
 	ObjFileModel* GetMesh(std::string name);
 
+	void ReleaseMeshes();
+
 };
 

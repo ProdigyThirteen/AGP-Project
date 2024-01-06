@@ -28,3 +28,13 @@ Material* MaterialDatabase::GetMaterial(const std::string& materialName)
 {
 	return m_Materials[materialName];
 }
+
+void MaterialDatabase::ReleaseMaterials()
+{
+	for (auto& material : m_Materials)
+	{
+		delete material.second;
+		material.second = nullptr;
+	}
+	m_Materials.clear();
+}

@@ -7,6 +7,10 @@
 #include "Collectable.h"
 #include "SoundManager.h"
 #include "Text.h"
+#include "PointLight.h"
+
+// Input for keybind reminder text
+#include "InputManager.h"
 
 void Scene::DrawFPS(float deltaTime)
 {
@@ -19,6 +23,21 @@ void Scene::DrawFPS(float deltaTime)
         UpdateText(m_FPSTextID, fps);
         m_FPSTimer = 0.0f;
         m_FPSCounter = 0;
+    }
+}
+
+void Scene::UpdateKeybindText()
+{
+    auto kbState = InputManager::GetInstance().GetKeyboardTracker();
+
+    if (kbState->pressed.F1)
+    {
+        m_Texts.at(m_KeybindTextID)->ToggleVisibility();
+        m_Texts.at(movementText)->ToggleVisibility();
+        m_Texts.at(aimText)->ToggleVisibility();
+        m_Texts.at(shootText)->ToggleVisibility();
+        m_Texts.at(pauseAmbient)->ToggleVisibility();
+        m_Texts.at(playSpatial)->ToggleVisibility();
     }
 }
 
@@ -61,6 +80,15 @@ bool Scene::Init(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext)
     {
         GameObject* cube = new Collectable("cube", "default", this);
         m_GameObjects.push_back(cube);
+        
+        // Set up point light
+        PointLight* pointLight = new PointLight();
+        // Shine light down on the cube
+        pointLight->position = { cube->GetTransform().pos.x, cube->GetTransform().pos.y + 1.0f, cube->GetTransform().pos.z };
+        pointLight->colour = { 0.85f, 0.0f, 0.85f, 1.0f };
+        pointLight->strength = 100.0f;
+        pointLight->active = true;
+        AddPointLight(pointLight);
     }
 
     GameObject* plr = new Player("Spaceship", "Spaceship", m_Camera, this);
@@ -73,6 +101,15 @@ bool Scene::Init(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext)
     m_FPSTextID = AddText({1150, 0}, L"Hello World!");
     m_ScoreTextID = AddText({ 0, 0 }, L"Score: 0 / " + std::to_wstring(m_TotalCollectables));
 
+    // Set up keybind reminder text
+    m_KeybindTextID = AddText({ 0, 25 }, L"Press F1 to toggle keybind reminder");
+    movementText = AddText({ 0, 50 }, L"Movement: WASD");
+    aimText = AddText({ 0, 75 }, L"Aim: Mouse");
+    shootText = AddText({ 0, 100 }, L"Shoot: Left Click");
+    pauseAmbient = AddText({ 0, 125 }, L"Pause Audio: P");
+    playSpatial = AddText({ 0, 150 }, L"Play distant audio: Arrow Keys");
+
+
     return true;
 }
 
@@ -84,6 +121,16 @@ void Scene::AddGameObject(GameObject* gameObject)
 void Scene::RemoveGameObject(GameObject* gameObject)
 {
     m_GameObjectsToRemove.push_back(gameObject);
+}
+
+void Scene::AddPointLight(PointLight* pointLight)
+{
+    m_PointLights.push_back(pointLight);
+}
+
+void Scene::RemovePointLight(PointLight* pointLight)
+{
+    m_PointLights.erase(std::remove(m_PointLights.begin(), m_PointLights.end(), pointLight), m_PointLights.end());
 }
 
 void Scene::Update(float deltaTime)
@@ -118,6 +165,7 @@ void Scene::Update(float deltaTime)
     m_GameObjectsToRemove.clear();
 
     DrawFPS(deltaTime);
+    UpdateKeybindText();
 }
 
 int Scene::AddText(DirectX::SimpleMath::Vector2 pos, std::wstring text)

@@ -224,6 +224,18 @@ void Renderer::DrawFrame(Scene* scene)
 		cBuffer.directionalLightCol = { 0.0f, 0.0f, 0.0f, 0.0f };
 		cBuffer.directionalLightDir = { 0.0f, 0.0f, 0.0f, 0.0f };
 
+		auto pointLights = scene->GetPointLights();
+		for (int i = 0; i < pointLights.size()-1; ++i)
+		{
+			if(!pointLights[i]->active) continue;
+
+			DirectX::XMMATRIX inverse = DirectX::XMMatrixInverse(nullptr, w);
+			cBuffer.pointLights[i].position = DirectX::XMVector3Transform(pointLights[i]->position, inverse);
+			cBuffer.pointLights[i].colour = pointLights[i]->colour;
+			cBuffer.pointLights[i].strength = pointLights[i]->strength;
+			cBuffer.pointLights[i].active = pointLights[i]->active;
+		}
+
 		// Update constant buffer
 		m_DeviceContext->UpdateSubresource(m_CBuffer, 0, NULL, &cBuffer, 0, 0);
 		m_DeviceContext->VSSetConstantBuffers(0, 1, &m_CBuffer);
@@ -241,6 +253,8 @@ void Renderer::DrawFrame(Scene* scene)
 	{
 		for (auto& text : scene->GetText())
 		{
+			if (text->GetText().empty() || !text->IsVisible()) continue; // Skip if no text or not visible
+			
 			m_SpriteFont->DrawString(m_SpriteBatch.get(), text->GetText().c_str(), text->GetPosition(), DirectX::Colors::White);
 		}
 	}

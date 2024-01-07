@@ -10,6 +10,7 @@ class GameObject;
 struct Camera;
 class Skybox;
 class Text;
+struct PointLight;
 
 class Scene
 {
@@ -19,6 +20,7 @@ private:
 	std::vector<GameObject*> m_GameObjectsToRemove;
 
 	std::vector<Text*> m_Texts;
+	std::vector<PointLight*> m_PointLights;
 
 	Camera* m_Camera = nullptr;
 	Skybox* m_Skybox = nullptr;
@@ -34,6 +36,15 @@ private:
 	int m_ScoreTextID = -1;
 	int m_Score = 0;
 
+	// Keybind reminder text
+	int m_KeybindTextID = -1;
+	int movementText = -1;
+	int aimText = -1;
+	int shootText = -1;
+	int pauseAmbient = -1;
+	int playSpatial = -1;
+	void UpdateKeybindText();
+
 public:
 	Scene() = default;
 	~Scene();
@@ -42,6 +53,10 @@ public:
 
 	void AddGameObject(GameObject* gameObject);
 	void RemoveGameObject(GameObject* gameObject);
+
+	void AddPointLight(PointLight* pointLight);
+	void RemovePointLight(PointLight* pointLight);
+	std::vector<PointLight*> GetPointLights() { return m_PointLights; }
 
 	void Update(float deltaTime);
 

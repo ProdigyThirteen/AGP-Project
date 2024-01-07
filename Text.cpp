@@ -21,3 +21,8 @@ void Text::SetText(std::wstring text)
 {
     m_Text = text;
 }
+
+void Text::ToggleVisibility()
+{
+    m_Visible = !m_Visible;
+}

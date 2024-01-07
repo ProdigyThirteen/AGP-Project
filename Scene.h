@@ -39,6 +39,7 @@ private:
 	// Keybind reminder text
 	int m_KeybindTextID = -1;
 	int movementText = -1;
+	int rollText = -1;
 	int aimText = -1;
 	int shootText = -1;
 	int pauseAmbient = -1;

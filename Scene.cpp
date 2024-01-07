@@ -34,6 +34,7 @@ void Scene::UpdateKeybindText()
     {
         m_Texts.at(m_KeybindTextID)->ToggleVisibility();
         m_Texts.at(movementText)->ToggleVisibility();
+        m_Texts.at(rollText)->ToggleVisibility();
         m_Texts.at(aimText)->ToggleVisibility();
         m_Texts.at(shootText)->ToggleVisibility();
         m_Texts.at(pauseAmbient)->ToggleVisibility();
@@ -104,10 +105,11 @@ bool Scene::Init(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext)
     // Set up keybind reminder text
     m_KeybindTextID = AddText({ 0, 25 }, L"Press F1 to toggle keybind reminder");
     movementText = AddText({ 0, 50 }, L"Movement: WASD");
-    aimText = AddText({ 0, 75 }, L"Aim: Mouse");
-    shootText = AddText({ 0, 100 }, L"Shoot: Left Click");
-    pauseAmbient = AddText({ 0, 125 }, L"Pause Audio: P");
-    playSpatial = AddText({ 0, 150 }, L"Play distant audio: Arrow Keys");
+    rollText = AddText({ 0, 75 }, L"Roll: Q/E");
+    aimText = AddText({ 0, 100 }, L"Aim: Mouse");
+    shootText = AddText({ 0, 125 }, L"Shoot: Left Click");
+    pauseAmbient = AddText({ 0, 150 }, L"Pause Audio: P");
+    playSpatial = AddText({ 0, 175 }, L"Play distant audio: Arrow Keys");
 
 
     return true;

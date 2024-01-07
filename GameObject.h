@@ -5,7 +5,7 @@
 #include "Material.h"
 
 class Scene;
-class Camera;
+struct Camera;
 
 class GameObject
 {

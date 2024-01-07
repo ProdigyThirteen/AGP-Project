@@ -48,17 +48,32 @@ Player::~Player()
 
 void Player::Move(float deltaTime)
 {
-    auto kbState = InputManager::GetInstance().GetKeyboardState();
+    auto kbState = InputManager::GetInstance().GetKeyboardTracker();
     const float speed = m_Speed * deltaTime;
 
     auto fv = m_Transform.Forward();
     auto rv = m_Transform.Right();
 
     // Movement
-    if (kbState.W)
+    if (kbState->lastState.W)
         m_Transform.pos += fv * speed;
-    if (kbState.S)
+    if (kbState->lastState.S)
         m_Transform.pos -= fv * speed;
+    if (kbState->lastState.A)
+        m_Transform.pos += rv * speed;
+    if (kbState->lastState.D)
+        m_Transform.pos -= rv * speed;
+    if (kbState->lastState.Q)
+        m_Transform.rot *= DirectX::XMQuaternionRotationAxis(m_Transform.Forward(), speed * 0.25f);
+    if (kbState->lastState.E)
+        m_Transform.rot *= DirectX::XMQuaternionRotationAxis(m_Transform.Forward(), -speed * 0.25f);
+
+    // Speed boost
+    if (kbState->pressed.LeftShift)
+        m_Speed *= 2;
+    if (kbState->released.LeftShift)
+        m_Speed /= 2;
+    
 }
 
 void Player::Rotate(float deltaTime)
@@ -70,13 +85,8 @@ void Player::Rotate(float deltaTime)
 
     if (x == 0 && y == 0)
         return;
-
-    // Rotation, inverting turn if player upside down
-    if (m_Transform.Up().y > 0)
-    	m_Transform.rot *= DirectX::XMQuaternionRotationAxis({ 0,1,0 }, x * m_Sense);
-    else
-        m_Transform.rot *= DirectX::XMQuaternionRotationAxis({ 0,1,0 }, -x * m_Sense);
     
+    m_Transform.rot *= DirectX::XMQuaternionRotationAxis(m_Transform.Up(), x * m_Sense);    
     m_Transform.rot *= DirectX::XMQuaternionRotationAxis(m_Transform.Right(), -y * m_Sense);
 }
 

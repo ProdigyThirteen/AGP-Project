@@ -7,8 +7,12 @@
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR cmdLine, _In_ int nCmdShow)
 {
 	bool result = Game::GetInstance()->Init(hInstance, nCmdShow);
+	if (!result)
+	{
+		return -1;
+	}
 
-	while(result > 0 && !Game::GetInstance()->IsGameOver())
+	while(!Game::GetInstance()->IsGameOver())
 	{
 		Game::GetInstance()->Run();
 	}

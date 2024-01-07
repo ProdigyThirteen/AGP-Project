@@ -33,4 +33,9 @@ struct Transform
     {
         return DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3::Up, rot);
     }
+
+	void Translate(const DirectX::SimpleMath::Vector3& translation)
+	{
+		pos += translation;
+	}
 };

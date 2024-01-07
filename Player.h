@@ -12,8 +12,14 @@ private:
 	float m_RotDeg = 0.0f;
 	float m_Sense = 0.0f;
 
+	float m_RateOfFire = 0.0f;
+	float m_TimeSinceLastShot = 0.0f;
+	int m_PosTextID;
+
 	void Move(float deltaTime);
 	void Rotate(float deltaTime);
+	void Shoot(float deltaTime);
+	void PauseMusic(); // So you can hear the spatial sound effects
 
 	// For debugging
 	void PlayDirectionalSound();
@@ -25,7 +31,7 @@ private:
 	void OnCollision(BoxCollider* other);
 
 public:
-	Player(const char* MeshName, const char* MaterialName, Camera* cam);
+	Player(const char* MeshName, const char* MaterialName, Camera* cam, Scene* scene);
 	~Player();
 
 	void Update(float deltaTime);

@@ -245,7 +245,7 @@ bool ObjFileModel::createVB()
 		if(tindices.size() > 0)
 		{ 
 			// if there are any, set texture coord data
-			int tindex = tindices[i]-1;
+			int tindex = tindices.at(i % tindices.size())-1;
 			vertices[i].TexCoord.x = texcoord_list[tindex].x;
 			vertices[i].TexCoord.y = texcoord_list[tindex].y;
 		}
@@ -253,7 +253,7 @@ bool ObjFileModel::createVB()
 		if(nindices.size() > 0)
 		{
 			// if there are any, set normal data
-			int nindex = nindices[i]-1;
+			int nindex = nindices.at(i % nindices.size())-1;
 			vertices[i].Normal.x = normal_list[nindex].x;
 			vertices[i].Normal.y = normal_list[nindex].y;
 			vertices[i].Normal.z = normal_list[nindex].z;

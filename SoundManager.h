@@ -15,12 +15,11 @@ private:
 	SoundManager& operator=(const SoundManager& other) = delete;
 
 	std::unique_ptr<DirectX::AudioEngine> m_AudioEngine;
-	std::map<std::string, DirectX::SoundEffect*> m_SoundEffects;
+	std::map<std::string, std::unique_ptr<DirectX::SoundEffect>> m_SoundEffects;
 	std::map<std::string, std::unique_ptr<DirectX::SoundEffectInstance>> m_SoundEffectInstances;
 	std::map<std::unique_ptr<DirectX::SoundEffectInstance>, DirectX::AudioEmitter*> m_SpatialSoundEffectInstances;
 
 	DirectX::AudioListener m_Listener;
-	DirectX::AudioEmitter m_Emitter;
 public:
 	static SoundManager& GetInstance()
 	{
@@ -48,6 +47,16 @@ public:
 	void SetListenerOrientationFromQuaternion(DirectX::SimpleMath::Quaternion orientation);
 	void UpdateListener(DirectX::SimpleMath::Vector3 position, DirectX::SimpleMath::Quaternion orientation, float deltaTime);
 	void PlaySpatialSoundEffect(std::string name, DirectX::XMFLOAT3 emitterPos, bool loop);
+
+	// Volume controls
+	void SetMasterVolume(float volume);
+	void SetPersistentAudioVolume(float volume);
+
+	// Play/pause
+	void PauseAll();
+	void ResumeAll();
+
+	void TogglePause(std::string name);
 
 	// Update and Cleanup
 	void Update();

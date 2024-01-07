@@ -18,7 +18,7 @@ private:
 	float bob = 0.0f;
 
 public:
-	Collectable(const char* MeshName, const char* MaterialName);
+	Collectable(const char* MeshName, const char* MaterialName, Scene* scene);
 	~Collectable();
 
 	void Update(float deltaTime);

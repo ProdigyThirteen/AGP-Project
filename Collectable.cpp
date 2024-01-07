@@ -1,23 +1,20 @@
 #include "Collectable.h"
-
-#include <iostream>
-
 #include "BoxCollider.h"
 #include "SoundManager.h"
+#include "Scene.h"
 
 void Collectable::OnCollision(BoxCollider* other)
 {
     // If the player collides with the collectable, destroy it
-    if (other->GetTag() == "Player" && !IsMarkedForDestruction())
+    if (other->GetTag() == "Missile" && !IsMarkedForDestruction())
     {
         Destroy();
-        SoundManager::GetInstance().PlaySpatialSoundEffect("explosion", m_Transform.pos, false);
-        //SoundManager::GetInstance().PlaySoundEffect("explosion");
+        m_Scene->AddScore();
     }
 }
 
-Collectable::Collectable(const char* MeshName, const char* MaterialName)
-    : GameObject(MeshName, MaterialName)
+Collectable::Collectable(const char* MeshName, const char* MaterialName, Scene* scene)
+    : GameObject(MeshName, MaterialName, scene)
 {
     m_Collider = new BoxCollider("Collectable");
     m_Collider->SetTransform(m_Transform);

@@ -1,18 +1,11 @@
 #include "SoundManager.h"
-
 #include <iostream>
-
 #include "StaticUtils.h"
 
 SoundManager::~SoundManager()
 {
-    StopAllSoundEffectInstances();
-    
-    for (auto& soundEffect : m_SoundEffects)
-    {
-        delete soundEffect.second;
-        soundEffect.second = nullptr;
-    }
+    m_AudioEngine->Suspend();
+    m_AudioEngine.release();
 }
 
 bool SoundManager::Init()
@@ -27,7 +20,7 @@ bool SoundManager::Init()
     if (!m_AudioEngine)
         return false;
 
-    m_AudioEngine->SetReverb(DirectX::Reverb_ConcertHall);
+    m_AudioEngine->SetReverb(DirectX::Reverb_Off);
     
     return true;
 }
@@ -42,7 +35,7 @@ void SoundManager::LoadSoundEffects(std::string filename)
         std::wstring fp = std::wstring(filename.begin(), filename.end());
         std::wstring path = fp + clip;
 
-        auto soundEffect = new DirectX::SoundEffect(m_AudioEngine.get(), path.c_str());
+        auto soundEffect = std::make_unique<DirectX::SoundEffect>(m_AudioEngine.get(), path.c_str());
         if (!soundEffect)
         {
             // scuffed error logging
@@ -53,7 +46,7 @@ void SoundManager::LoadSoundEffects(std::string filename)
         }
 
         std::string soundEffectName = files[i].substr(0, files[i].find_last_of("."));
-        m_SoundEffects[soundEffectName] = soundEffect;
+        m_SoundEffects[soundEffectName] = move(soundEffect);
     }
 }
 
@@ -71,8 +64,7 @@ void SoundManager::PlaySoundEffect(std::string name)
 
 void SoundManager::PlaySoundEffectInstance(std::string name, bool loop)
 {
-    DirectX::SoundEffect* soundEffect = m_SoundEffects[name];
-    if (!soundEffect)
+    if (!m_SoundEffects[name])
     {
         OutputDebugString(L"Sound effect not found\n");
         return;
@@ -82,7 +74,7 @@ void SoundManager::PlaySoundEffectInstance(std::string name, bool loop)
     if (!m_SoundEffectInstances[name])
     {
         // Create instance if none found
-        m_SoundEffectInstances[name] = soundEffect->CreateInstance();
+        m_SoundEffectInstances[name] = m_SoundEffects[name]->CreateInstance();
         if (!m_SoundEffectInstances[name])
         {
             OutputDebugString(L"Failed to create sound effect instance\n");
@@ -145,6 +137,9 @@ void SoundManager::PlaySpatialSoundEffect(std::string name, DirectX::XMFLOAT3 em
         OutputDebugString(L"Sound effect not found\n");
         return;
     }
+
+    std::cout << "Playing sound effect: " << name << std::endl;
+    DirectX::AudioEmitter m_Emitter;
     
     m_Emitter.ChannelCount = sound->second->GetFormat()->nChannels;
     
@@ -156,6 +151,60 @@ void SoundManager::PlaySpatialSoundEffect(std::string name, DirectX::XMFLOAT3 em
     m_SoundEffectInstances[name]->Apply3D(m_Listener, m_Emitter);
 }
 
+void SoundManager::SetMasterVolume(float volume)
+{
+    m_AudioEngine->SetMasterVolume(volume);
+}
+
+void SoundManager::SetPersistentAudioVolume(float volume)
+{
+    for (auto& soundEffectInstance : m_SoundEffectInstances)
+    {
+        soundEffectInstance.second->SetVolume(volume);
+    }
+}
+
+void SoundManager::PauseAll()
+{
+    for (auto& soundEffectInstance : m_SoundEffectInstances)
+    {
+        soundEffectInstance.second->Pause();
+    }
+
+    for (auto& spatialSoundEffectInstance : m_SpatialSoundEffectInstances)
+    {
+        spatialSoundEffectInstance.first->Pause();
+    }
+}
+
+void SoundManager::ResumeAll()
+{
+    for (auto& soundEffectInstance : m_SoundEffectInstances)
+    {
+        soundEffectInstance.second->Resume();
+    }
+
+    for (auto& spatialSoundEffectInstance : m_SpatialSoundEffectInstances)
+    {
+        spatialSoundEffectInstance.first->Resume();
+    }
+}
+
+void SoundManager::TogglePause(std::string name)
+{
+    auto soundEffectInstance = m_SoundEffectInstances.find(name);
+    if (soundEffectInstance == m_SoundEffectInstances.end())
+    {
+        OutputDebugString(L"Sound effect instance not found\n");
+        return;
+    }
+
+    if (soundEffectInstance->second->GetState() == DirectX::SoundState::PLAYING)
+        soundEffectInstance->second->Pause();
+    else
+        soundEffectInstance->second->Resume();
+}
+
 void SoundManager::Update()
 {
     m_AudioEngine->Update();
@@ -163,11 +212,8 @@ void SoundManager::Update()
 
 void SoundManager::Cleanup()
 {
+	m_AudioEngine->Suspend();
     StopAllSoundEffectInstances();
-    
-    for (auto& soundEffect : m_SoundEffects)
-    {
-        delete soundEffect.second;
-        soundEffect.second = nullptr;
-    }
+    m_SoundEffects.clear();
+    m_SoundEffectInstances.clear();
 }

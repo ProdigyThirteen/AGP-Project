@@ -2,6 +2,7 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include "ShaderManager.h"
+#include <SpriteFont.h>
 
 // Forward declarations
 class Scene;
@@ -21,6 +22,14 @@ private:
 
 	ID3D11Buffer*			  m_IBuffer		  = nullptr;
 	ID3D11Buffer*			  m_CBuffer		  = nullptr;
+
+	// Text rendering
+	std::unique_ptr<DirectX::SpriteBatch> m_SpriteBatch;
+	std::unique_ptr<DirectX::SpriteFont> m_SpriteFont;
+
+	// Blend state
+	ID3D11BlendState* pAlphaBlendStateEnable = nullptr;
+	ID3D11BlendState* pAlphaBlendStateDisable = nullptr;
 
 
 	ShaderManager* m_ShaderManager = nullptr;

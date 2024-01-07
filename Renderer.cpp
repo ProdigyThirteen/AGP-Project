@@ -11,6 +11,7 @@
 #include "Skybox.h"
 #include "GameObject.h"
 #include "Camera.h"
+#include "Text.h"
 
 Renderer::Renderer()
 {
@@ -26,6 +27,8 @@ Renderer::~Renderer()
 	if (m_ZBuffer) m_ZBuffer->Release();
 	if (m_CBuffer) m_CBuffer->Release();
 	if (m_Device) m_Device->Release();
+	if (pAlphaBlendStateEnable) pAlphaBlendStateEnable->Release();
+	if (pAlphaBlendStateDisable) pAlphaBlendStateDisable->Release();
 
 }
 
@@ -155,6 +158,27 @@ HRESULT Renderer::Init(HWND hWnd)
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	m_Device->CreateSamplerState(&sampDesc, &m_SamplerState);
 
+	// Setup text rendering
+	m_SpriteBatch = std::make_unique<DirectX::SpriteBatch>(m_DeviceContext);
+	m_SpriteFont = std::make_unique<DirectX::SpriteFont>(m_Device, L"font/comicsans.spritefont");
+
+	// Set up blend states
+	D3D11_BLEND_DESC blendDesc = {0};
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].BlendOp	= D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlend	 = D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend	= D3D11_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.IndependentBlendEnable = FALSE;
+	blendDesc.AlphaToCoverageEnable = FALSE;
+	m_Device->CreateBlendState(&blendDesc, &pAlphaBlendStateEnable);
+
+	blendDesc.RenderTarget[0].BlendEnable = FALSE;
+	m_Device->CreateBlendState(&blendDesc, &pAlphaBlendStateDisable);
+
 	return S_OK;
 }
 
@@ -209,6 +233,19 @@ void Renderer::DrawFrame(Scene* scene)
 		if (mesh)
 			mesh->Draw();
 	}
+
+	// Render text
+	m_DeviceContext->OMSetBlendState(pAlphaBlendStateEnable, NULL, 0xffffffff);
+	m_SpriteBatch->Begin();
+	if(m_SpriteBatch) // Error handle no font loaded
+	{
+		for (auto& text : scene->GetText())
+		{
+			m_SpriteFont->DrawString(m_SpriteBatch.get(), text->GetText().c_str(), text->GetPosition(), DirectX::Colors::White);
+		}
+	}
+	m_SpriteBatch->End();
+	m_DeviceContext->OMSetBlendState(pAlphaBlendStateDisable, NULL, 0xffffffff);
 
 
 	m_SwapChain->Present(0, 0);

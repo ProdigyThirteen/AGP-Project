@@ -20,18 +20,5 @@ struct Material
 		Shader = shader;
 	}
 
-	~Material()
-	{
-		if (Texture)
-		{
-			Texture->Release();
-			Texture = nullptr;
-		}
-
-		if (Shader)
-		{
-			delete Shader;
-			Shader = nullptr;
-		}
-	}
+	~Material() = default;
 };

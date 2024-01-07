@@ -172,6 +172,7 @@ bool Game::Init(HINSTANCE hInstance, int nCmdShow)
 	// Create materials from textures and shaders
 	MaterialDatabase::GetInstance().CreateNewMaterial("missile", "default", "missile");
 	MaterialDatabase::GetInstance().CreateNewMaterial("default", "default", "Box");
+	MaterialDatabase::GetInstance().CreateNewMaterial("Spaceship", "default", "Spaceship");
 	MaterialDatabase::GetInstance().CreateSkyboxMaterial("skybox", "skybox", "skybox01");
 
 	// Create scene
@@ -217,6 +218,13 @@ void Game::Run()
 		m_Renderer->DrawFrame(m_Scene);
 
 		SoundManager::GetInstance().Update();
+
+		// Quit on escape
+		auto kb = InputManager::GetInstance().GetKeyboardState();
+		if (kb.Escape)
+		{
+			bGameOver = true;
+		}
 	}
 
 }

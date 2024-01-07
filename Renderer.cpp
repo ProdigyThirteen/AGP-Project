@@ -221,8 +221,10 @@ void Renderer::DrawFrame(Scene* scene)
 		//cBuffer.WV  = w * v;
 
 		cBuffer.ambientLightColour = { 0.5f, 0.5f, 0.5f, 1.0f };
-		cBuffer.directionalLightCol = { 0.0f, 0.0f, 0.0f, 0.0f };
-		cBuffer.directionalLightDir = { 0.0f, 0.0f, 0.0f, 0.0f };
+		cBuffer.directionalLightCol = { 1.0f, 0.8f, 0.0f, 1.0f };
+		DirectX::XMMATRIX transpose = DirectX::XMMatrixTranspose(w);
+		DirectX::XMVECTOR lightDir = { 0.0f, 0.0f, -1.0f, 1.0f };
+		cBuffer.directionalLightDir = DirectX::XMVector3Transform(lightDir, transpose);
 
 		auto pointLights = scene->GetPointLights();
 		for (int i = 0; i < pointLights.size()-1; ++i)

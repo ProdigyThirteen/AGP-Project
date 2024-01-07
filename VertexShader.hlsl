@@ -1,4 +1,4 @@
-#define MAX_POINT_LIGHTS 20
+#define MAX_POINT_LIGHTS 10
 
 struct PointLight
 {

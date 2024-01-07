@@ -32,7 +32,7 @@ private:
 	int m_FPSCounter = 0;
 
 	// Shitty score system to make this a "game"
-	int m_TotalCollectables = 20;
+	int m_TotalCollectables = 10;
 	int m_ScoreTextID = -1;
 	int m_Score = 0;
 
